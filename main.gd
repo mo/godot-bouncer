@@ -1,9 +1,9 @@
 extends Node2D
 
 var BlockScene: PackedScene = preload("./block.tscn")
-var cols := 45
-var rows := 45
-var speed = 2000
+var cols := 25
+var rows := 25
+var speed = 3000
 var balls: Array[CharacterBody2D] = []
 
 func layermask(layers: Array) -> int:
@@ -11,6 +11,15 @@ func layermask(layers: Array) -> int:
 	for layer in layers:
 		bitmask |= 1 << (layer - 1)
 	return bitmask
+
+func setBlockType(block: Block, type: int):
+	if type == 1:
+		block.get_node("ColorRect").color = Color.WHITE
+		block.collision_layer = layermask([2]) # move block to collision layer 3
+	else:
+		block.get_node("ColorRect").color = Color.BLACK
+		block.collision_layer = layermask([3]) # move block to collision layer 2
+	block.type = type
 
 func _ready():
 	var screenSize = get_viewport_rect().size
@@ -23,11 +32,9 @@ func _ready():
 			block.scale = Vector2(blockWidth / 100, blockHeight / 100)
 			var isInBottomLeftCorner = block.position.distance_to(Vector2(0, screenSize.y)) < block.position.distance_to(Vector2(screenSize.x, 0))
 			if isInBottomLeftCorner:
-				block.get_node("ColorRect").color = Color.WHITE
-				block.collision_layer = layermask([2]) # move block to collision layer 3
+				setBlockType(block, 1)
 			else:
-				block.get_node("ColorRect").color = Color.BLACK
-				block.collision_layer = layermask([3]) # move block to collision layer 2
+				setBlockType(block, 2)
 			$BlocksContainer.add_child(block)
 	balls = [
 		Ball.create(Color.WHITE, Vector2(screenSize.x * 0.8, screenSize.y * 0.2), layermask([4]), layermask([1, 2])),
@@ -45,3 +52,5 @@ func _physics_process(delta):
 				ball.direction = ball.direction.bounce(collision.get_normal())
 			elif collider is Block:
 				ball.direction = ball.direction.bounce(collision.get_normal())
+				var block := collider as Block
+				setBlockType(block, 1 if block.type == 2 else 2)
