@@ -1,11 +1,12 @@
 extends CharacterBody2D
+class_name Ball
 
-var speed = 1000
-var dir = Vector2(1,-1).normalized()
+@export var direction = Vector2(1,-2).normalized()
 
-func _physics_process(delta):
-	var collision = move_and_collide(dir * speed * delta)
-	if collision:
-		var collider = collision.get_collider()
-		if collider == $"../StaticBody2D":
-			dir = dir.bounce(collision.get_normal())
+static func create(color: Color, ballPosition: Vector2, collisionLayer: int, collisionMask: int):
+	var ball: CharacterBody2D = load("./ball.tscn").instantiate()	
+	ball.get_node("ColorRect").color = color
+	ball.position = ballPosition
+	ball.collision_layer = collisionLayer
+	ball.collision_mask = collisionMask
+	return ball
