@@ -14,10 +14,10 @@ func layermask(layers: Array) -> int:
 func setBlockType(block: Block, type: int):
 	if type == 1:
 		block.get_node("ColorRect").color = Color.WHITE
-		block.collision_layer = layermask([2]) # move block to collision layer 3
+		block.collision_layer = layermask([2]) # move block to collision layer 2
 	else:
 		block.get_node("ColorRect").color = Color.BLACK
-		block.collision_layer = layermask([3]) # move block to collision layer 2
+		block.collision_layer = layermask([3]) # move block to collision layer 3
 	block.type = type
 
 func _ready():
@@ -36,7 +36,7 @@ func _ready():
 				setBlockType(block, 2)
 			$BlocksContainer.add_child(block)
 	balls = [
-		Ball.create(Color.WHITE, Vector2(screenSize.x * 0.8, screenSize.y * 0.2), Vector2(1,-2).normalized(), 3000, PI*(1/2), layermask([4]), layermask([1, 2])),
+		Ball.create(Color.WHITE, Vector2(screenSize.x * 0.8, screenSize.y * 0.2), Vector2(1,-2).normalized(), 3000, PI/2, layermask([4]), layermask([1, 2])),
 		Ball.create(Color.BLACK, Vector2(screenSize.x * 0.2, screenSize.y * 0.8), Vector2(1,-2).normalized(), 3000, 0, layermask([5]), layermask([1, 3]))
 	]
 	for ball in balls:
@@ -45,7 +45,7 @@ func _ready():
 func _physics_process(delta):
 	for ball in balls:
 		ball.speedAngle += PI/450
-		var speed = 1000 + 2000*sin(ball.speedAngle)
+		var speed = 1000 + 2000*abs(sin(ball.speedAngle))
 		var collision = ball.move_and_collide(ball.direction * speed * delta)
 		if collision:
 			var collider = collision.get_collider()
