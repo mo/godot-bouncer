@@ -3,7 +3,6 @@ extends Node2D
 var BlockScene: PackedScene = preload("./block.tscn")
 var cols := 25
 var rows := 25
-var speed = 3000
 var balls: Array[CharacterBody2D] = []
 
 func layermask(layers: Array) -> int:
@@ -37,14 +36,16 @@ func _ready():
 				setBlockType(block, 2)
 			$BlocksContainer.add_child(block)
 	balls = [
-		Ball.create(Color.WHITE, Vector2(screenSize.x * 0.8, screenSize.y * 0.2), layermask([4]), layermask([1, 2])),
-		Ball.create(Color.BLACK, Vector2(screenSize.x * 0.2, screenSize.y * 0.8), layermask([5]), layermask([1, 3]))
+		Ball.create(Color.WHITE, Vector2(screenSize.x * 0.8, screenSize.y * 0.2), Vector2(1,-2).normalized(), 3000, PI*(1/2), layermask([4]), layermask([1, 2])),
+		Ball.create(Color.BLACK, Vector2(screenSize.x * 0.2, screenSize.y * 0.8), Vector2(1,-2).normalized(), 3000, 0, layermask([5]), layermask([1, 3]))
 	]
 	for ball in balls:
 		add_child(ball)
 
 func _physics_process(delta):
 	for ball in balls:
+		ball.speedAngle += PI/450
+		var speed = 1000 + 2000*sin(ball.speedAngle)
 		var collision = ball.move_and_collide(ball.direction * speed * delta)
 		if collision:
 			var collider = collision.get_collider()
