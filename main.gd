@@ -1,9 +1,10 @@
 extends Node2D
 
 var BlockScene: PackedScene = preload("./block.tscn")
-var cols := 25
-var rows := 25
+var cols := 35
+var rows := 35
 var balls: Array[CharacterBody2D] = []
+var edgeThickness = 50
 
 func layermask(layers: Array) -> int:
 	var bitmask = 0
@@ -20,7 +21,21 @@ func setBlockType(block: Block, type: int):
 		block.collision_layer = layermask([3]) # move block to collision layer 3
 	block.type = type
 
+
+func adjustScreenEdges():
+	var screenSize = get_viewport_rect().size
+	$ScreenEdges/Top.position = Vector2(screenSize.x / 2, -edgeThickness / 2)
+	$ScreenEdges/Top.shape.size = Vector2(screenSize.x, edgeThickness)
+	$ScreenEdges/Bottom.position = Vector2(screenSize.x / 2, screenSize.y + edgeThickness / 2)
+	$ScreenEdges/Bottom.shape.size = Vector2(screenSize.x, edgeThickness)
+	$ScreenEdges/Left.position = Vector2(-edgeThickness / 2, screenSize.y / 2)
+	$ScreenEdges/Left.shape.size = Vector2(edgeThickness, screenSize.y)
+	$ScreenEdges/Right.position = Vector2(screenSize.x + edgeThickness / 2, screenSize.y / 2)
+	$ScreenEdges/Right.shape.size = Vector2(edgeThickness, screenSize.y)
+
 func _ready():
+	adjustScreenEdges()
+	get_tree().root.size_changed.connect(adjustScreenEdges)
 	var screenSize = get_viewport_rect().size
 	var blockWidth = screenSize.x / cols
 	var blockHeight = screenSize.y / rows
@@ -45,7 +60,7 @@ func _ready():
 func _physics_process(delta):
 	for ball in balls:
 		ball.speedAngle += PI/450
-		var speed = 1000 + 2000*abs(sin(ball.speedAngle))
+		var speed = 500 + 2500*abs(sin(ball.speedAngle))
 		var collision = ball.move_and_collide(ball.direction * speed * delta)
 		if collision:
 			var collider = collision.get_collider()
